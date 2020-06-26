@@ -1,10 +1,10 @@
 #!/bin/bash
 #twitter: @linux_choice
 trap 'printf "\e[1;77m \n Ctrl+C was pressed, exiting...\n\n \e[0m"; rm -rf spider.url*; exit 0' 2
-counter=0
-turn=0
+counter=0;turn=0;
 default_crawl="0"
 default_threads="10"
+user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0"
 
 function banner() {
 
@@ -23,12 +23,12 @@ threads="${threads:-${default_threads}}"
 
 printf "\e[101m[*] Spider Shell is \e[5mrunning\e[25m, please wait... \e[0m \n"
 start="$(date -u +%s)"
-wget --no-check-certificate -q $site -O - | tr "\t\r\n'" '   "' | grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' | sed -e 's/^.*"\([^"]\+\)".*$/\1/g' > spider.url.$turn
+wget --no-check-certificate -U $user_agent -q $site -O - | tr "\t\r\n'" '   "' | grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' | sed -e 's/^.*"\([^"]\+\)".*$/\1/g' > spider.url.$turn
 let counter++
 
 function spider() {
 let turn++
-cat spider.url.$((turn-1)) | xargs -P $threads -I % wget --no-check-certificate -q % -O - | tr "\t\r\n'" '   "' | grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' | sed -e 's/^.*"\([^"]\+\)".*$/\1/g' >> spider.url.$turn
+cat spider.url.$((turn-1)) | xargs -P $threads -I % wget --no-check-certificate -U $user_agent -q % -O - | tr "\t\r\n'" '   "' | grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' | sed -e 's/^.*"\([^"]\+\)".*$/\1/g' >> spider.url.$turn
 }
 while [[ "$crawl" -gt "$counter" ]]; do
   spider
